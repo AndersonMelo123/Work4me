@@ -15,7 +15,7 @@ beforeEach(async () => {
 
   work4me = await new web3.eth.Contract(JSON.parse(interface))
     .deploy({ data: bytecode })
-    .send({ from: accounts[0], gas: '1000000',  value: web3.utils.toWei('10', 'ether') });
+    .send({ from: accounts[0], gas: '1000000' });
     
   work4me.setProvider(provider);
 });
@@ -30,10 +30,19 @@ describe('Work4me Contract', () => {
       from: accounts[1]
     });
 
-    const users = await work4me.methods.getClients().call({
-        from: accounts[0]
+    const users = await work4me.methods.client().call();
+    assert.equal(accounts[1], users);
+  });
+
+  it('Open task', async () =>{
+    await work4me.methods.openTask().send({
+      from: accounts[0],
+      value: web3.utils.toWei('10', 'ether')
     });
-    assert.equal(accounts[1], users[0]);
+
+    const valueTask = await work4me.methods.valueTask().call();
+    
+    assert.equal('10', web3.utils.fromWei(valueTask, 'ether'));
   });
 
   it('Only manage can call finalizeTask', async() =>{
@@ -52,10 +61,15 @@ describe('Work4me Contract', () => {
       from: accounts[1]
     });
 
+    await work4me.methods.openTask().send({
+      from: accounts[0],
+      value: web3.utils.toWei('10', 'ether')
+    });
+
     const initialValue = await web3.eth.getBalance(accounts[1]);
     //console.log(web3.utils.fromWei(initialValue, 'ether'));
 
-    await work4me.methods.finalizeTask().send({from : accounts[0] });
+    await work4me.methods.finalizeTask().send({from : accounts[0]});
     
     const finalValue = await web3.eth.getBalance(accounts[1]);
     //console.log(web3.utils.fromWei(finalValue, 'ether'));

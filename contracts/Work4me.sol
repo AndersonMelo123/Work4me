@@ -3,7 +3,7 @@ pragma solidity ^0.4.17;
 contract Work4me {
     
     address public manager;
-    address[] public client;
+    address public client;
     uint public valueTask;
     bool taskOpen;
     
@@ -14,22 +14,23 @@ contract Work4me {
 
     function Work4me() public payable {
         manager = msg.sender;
+    }
+    
+    function openTask() public payable restricted {
         valueTask = msg.value;
     }
     
     function enter() public {
         require(taskOpen == false);
-        client.push(msg.sender);
+        client = msg.sender;
         taskOpen = true;
     }
     
     function finalizeTask() public restricted {
         require(taskOpen == true);
-        client[0].transfer(this.balance);
+        client.transfer(valueTask);
+        valueTask = 0;
+        client = 0x0000000000000000000000000000000000000000;
         taskOpen = false;
-    }
-
-    function getClients() public view returns (address[]){
-        return client;
     }
 }

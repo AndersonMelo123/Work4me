@@ -16,7 +16,7 @@ const deploy = async () => {
 
     const result = await new web3.eth.Contract(JSON.parse(interface))
      .deploy({data: '0x' + bytecode })
-     .send({from: accounts[0], value: web3.utils.toWei('5', 'ether') }); 
+     .send({from: accounts[0] }); 
 
     console.log(interface);
     console.log('deploy to', result.options.address);
